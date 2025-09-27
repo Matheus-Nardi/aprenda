@@ -41,7 +41,7 @@ export const AuthService = {
         throw new Error("Usuário não autenticado");
       }
 
-      const respostaAxios = await axios.get(
+      const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
         {
           headers: {
@@ -50,7 +50,8 @@ export const AuthService = {
           }
         }
       );
-      return respostaAxios.data.data;
+      console.log(response.data);
+      return response.data;
     } catch (error) {
       console.error("Erro ao buscar perfil do usuário:", error);
       throw error;

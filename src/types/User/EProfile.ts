@@ -1,5 +1,5 @@
 export enum EProfile{
-    ADMIN = "ADMIN",
-    PROFESSOR = "PROFESSOR",
-    STUDENT = "STUDENT"
+    ADMIN = 1,
+    PROFESSOR = 2,
+    STUDENT = 3
 }

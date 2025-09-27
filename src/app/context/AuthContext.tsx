@@ -8,6 +8,7 @@ import { Login } from '@/types/User/Login';
 import { User } from '@/types/User/User';
 import { AuthService } from '@/lib/services/AuthService';
 import { EProfile } from '@/types/User/EProfile';
+import { toast } from 'sonner';
 
 
 interface AuthContextType {
@@ -49,15 +50,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
    
       const token = await AuthService.login(credentials);
-      
-     
       Cookies.set('auth_token', token, { 
         expires: 7, 
         secure: process.env.NODE_ENV === 'production', 
         sameSite: 'strict'
       });
-      const userProfile= await AuthService.profile();
+      const userProfile=  await AuthService.profile();
       setUser(userProfile);
+      toast.success(`Bem vindo de volta, ${userProfile.name}!`);
+
+      if (userProfile.profile === EProfile.PROFESSOR) {
+        router.push('/professor/dashboard');
+      } else if (userProfile.profile === EProfile.STUDENT) { 
+        router.push('/student/dashboard');
+      } else {
+        router.push('/');
+      }
     } catch (error) {
       setUser(null);
       throw error;

@@ -41,10 +41,7 @@ export function LoginForm() {
     try {
       const user = dadosParaApi
       await login(user)
-      toast.success("Bem vindo!")
       form.reset();
-     
-
     } catch (error) {
       console.error("Erro ao fazer login:", error)
       toast.error("Erro ao fazer login. Tente novamente.")
