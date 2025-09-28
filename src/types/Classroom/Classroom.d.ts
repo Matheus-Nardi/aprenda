@@ -1,3 +1,4 @@
+import { Archive } from "../Archive/Archive";
 import { User } from "../User/User";
 
 export interface Classroom {
@@ -7,4 +8,6 @@ export interface Classroom {
     createdAt: string; 
     updatedAt: string; 
     users: User[];
+    banner: Archive | null;
+    avatar: Archive | null;
 }

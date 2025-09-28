@@ -3,12 +3,14 @@
 import CardClassroom from "@/components/project/classroom/CardClassroom"
 import { ProfessorService } from "@/lib/services/ProfessorService"
 import type { Classroom } from "@/types/Classroom/Classroom"
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Users, BookOpen, GraduationCap, Plus, Search, Filter, TrendingUp } from "lucide-react"
+import { useRouter } from "next/navigation"
+
 
 interface DashboardStats {
   totalClassrooms: number
@@ -21,6 +23,7 @@ export default function DashboardProfessorPage() {
   const [classrooms, setClassrooms] = useState<Classroom[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
+  const route = useRouter();
 
   const loadData = async () => {
     try {
@@ -67,6 +70,10 @@ export default function DashboardProfessorPage() {
         </div>
       </div>
     )
+  }
+
+  function handleClassroomClick(id: number): void {
+    route.push(`/professor/dashboard/classroom/${id}`);
   }
 
   return (
@@ -190,10 +197,10 @@ export default function DashboardProfessorPage() {
                 )}
               </CardContent>
             </Card>
-          ) : (
+          ) : ( 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredClassrooms.map((classroom) => (
-                <CardClassroom key={classroom.id} classroom={classroom} />
+                <CardClassroom key={classroom.id} classroom={classroom} onClick={() => handleClassroomClick(classroom.id)} />
               ))}
             </div>
           )}

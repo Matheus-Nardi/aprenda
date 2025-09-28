@@ -1,4 +1,5 @@
 
+import { Archive } from "../Archive/Archive";
 import { EProfile } from "./EProfile";
 
 export interface User {
@@ -7,4 +8,5 @@ export interface User {
   name: string;
   createdAt: string;
   profile: EProfile;
+  avatar: Archive | null;
 }

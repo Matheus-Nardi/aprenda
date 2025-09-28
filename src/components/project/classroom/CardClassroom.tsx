@@ -3,19 +3,19 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Users, Calendar, BookOpen } from "lucide-react"
-import { id } from "zod/locales"
 
 interface CardClassroomProps {
   classroom: Classroom
+  onClick?: () => void
 }
 
-export default function CardClassroom({ classroom }: CardClassroomProps) {
+export default function CardClassroom({ classroom, onClick }: CardClassroomProps) {
   const studentCount = classroom.users.filter((user) => user.profile === 3).length
   const teachers = classroom.users.filter((user) => user.profile === 2)
   const createdDate = new Date(classroom.createdAt).toLocaleDateString("pt-BR")
 
   return (
-    <Card className="hover:border-primary/50 transition-all duration-200 cursor-pointer bg-white border-border/40">
+    <Card className="hover:border-primary/50 transition-all duration-200 cursor-pointer bg-white border-border/40" onClick={onClick}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
