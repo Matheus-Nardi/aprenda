@@ -3,6 +3,13 @@ import { Login } from '@/types/User/Login';
 import axios from 'axios'; 
 import Cookies from 'js-cookie';
 
+interface RegisterPayload{
+  name:string,
+  email:string,
+  password:string,
+  profile: number,
+  avatarId: number | null
+}
 export const AuthService = {
   async login(login: Login): Promise<string> {
     try {
@@ -52,6 +59,23 @@ export const AuthService = {
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar perfil do usuário:", error);
+      throw error;
+    }
+  },
+
+  async register(register: RegisterPayload): Promise<void>{
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/user`,
+        register,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Erro ao fazer registro no serviço:", error);
       throw error;
     }
   }
