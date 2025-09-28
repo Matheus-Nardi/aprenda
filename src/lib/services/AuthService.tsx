@@ -2,9 +2,6 @@
 import { Login } from '@/types/User/Login';
 import axios from 'axios'; 
 import Cookies from 'js-cookie';
-import { useRouter } from 'next/router';
-
-
 
 export const AuthService = {
   async login(login: Login): Promise<string> {
