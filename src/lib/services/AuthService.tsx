@@ -2,6 +2,7 @@
 import { Login } from '@/types/User/Login';
 import axios from 'axios'; 
 import Cookies from 'js-cookie';
+import { useRouter } from 'next/router';
 
 
 
@@ -38,7 +39,7 @@ export const AuthService = {
     try {
       const token = Cookies.get('auth_token');
       if (!token) {
-        throw new Error("Usuário não autenticado");
+        return null;
       }
 
       const response = await axios.get(
