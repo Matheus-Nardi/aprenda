@@ -127,7 +127,7 @@ export function LoginForm() {
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
               Não tem uma conta?{" "}
-              <Link href="/signup" className="text-primary hover:text-primary/80 font-medium transition-colors">
+              <Link href="/register" className="text-primary hover:text-primary/80 font-medium transition-colors">
                 Quero criar uma
               </Link>
             </p>

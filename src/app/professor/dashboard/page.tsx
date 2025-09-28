@@ -1,54 +1,64 @@
-"use client"
+"use client";
 
-import CardClassroom from "@/components/project/classroom/CardClassroom"
-import { ProfessorService } from "@/lib/services/ProfessorService"
-import type { Classroom } from "@/types/Classroom/Classroom"
-import { use, useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Users, BookOpen, GraduationCap, Plus, Search, Filter, TrendingUp } from "lucide-react"
-import { useRouter } from "next/navigation"
-
+import CardClassroom from "@/components/project/classroom/CardClassroom";
+import { ProfessorService } from "@/lib/services/ProfessorService";
+import type { Classroom } from "@/types/Classroom/Classroom";
+import { use, useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Users,
+  BookOpen,
+  GraduationCap,
+  Plus,
+  Search,
+  Filter,
+  TrendingUp,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { GenericFormDialog } from "@/components/project/dialog/GenericDialogForm";
+import CreateClassroom from "@/components/project/forms/CreateClassroom";
 
 interface DashboardStats {
-  totalClassrooms: number
-  totalStudents: number
-  totalTeachers: number
-  averageStudentsPerClass: number
+  totalClassrooms: number;
+  totalStudents: number;
+  totalTeachers: number;
+  averageStudentsPerClass: number;
 }
 
 export default function DashboardProfessorPage() {
-  const [classrooms, setClassrooms] = useState<Classroom[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [classrooms, setClassrooms] = useState<Classroom[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const route = useRouter();
 
   const loadData = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const [classroomsData] = await Promise.all([
         ProfessorService.getClassrooms(),
-      ])
+      ]);
 
-      setClassrooms(classroomsData || [])
+      setClassrooms(classroomsData || []);
     } catch (error) {
-      console.error("Erro ao carregar dados:", error)
+      console.error("Erro ao carregar dados:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    loadData()
-  }, [])
+    loadData();
+  }, []);
 
   const filteredClassrooms = classrooms.filter(
     (classroom) =>
       classroom.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      classroom.description.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      classroom.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (loading) {
     return (
@@ -69,7 +79,7 @@ export default function DashboardProfessorPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   function handleClassroomClick(id: number): void {
@@ -82,14 +92,33 @@ export default function DashboardProfessorPage() {
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Dashboard do Professor</h1>
-              <p className="text-muted-foreground mt-1">Gerencie suas turmas e acompanhe o progresso dos alunos</p>
+              <h1 className="text-3xl font-bold text-foreground">
+                Dashboard do Professor
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Gerencie suas turmas e acompanhe o progresso dos alunos
+              </p>
             </div>
-            <Button className="w-fit">
+            <Button className="w-fit" onClick={() => setIsDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Nova Turma
             </Button>
           </div>
+
+          <GenericFormDialog
+            title="Criar Novo Usuário"
+            description="Preencha os dados abaixo para adicionar um novo usuário ao sistema."
+            open={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+          >
+            <CreateClassroom
+              onSuccess={() => {
+                console.log("Formulário enviado, fechando o dialog.");
+                loadData()
+                setIsDialogOpen(false);
+              }}
+            />
+          </GenericFormDialog>
 
           {/* Stats Cards */}
           {/* {stats && (
@@ -160,9 +189,12 @@ export default function DashboardProfessorPage() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-semibold text-foreground">Suas Turmas</h2>
+              <h2 className="text-xl font-semibold text-foreground">
+                Suas Turmas
+              </h2>
               <Badge variant="secondary" className="bg-primary/10 text-primary">
-                {filteredClassrooms.length} {filteredClassrooms.length === 1 ? "turma" : "turmas"}
+                {filteredClassrooms.length}{" "}
+                {filteredClassrooms.length === 1 ? "turma" : "turmas"}
               </Badge>
             </div>
             {searchTerm && (
@@ -182,7 +214,9 @@ export default function DashboardProfessorPage() {
               <CardContent className="flex flex-col items-center justify-center py-12 text-center">
                 <BookOpen className="h-12 w-12 text-muted-foreground/50 mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">
-                  {searchTerm ? "Nenhuma turma encontrada" : "Nenhuma turma cadastrada"}
+                  {searchTerm
+                    ? "Nenhuma turma encontrada"
+                    : "Nenhuma turma cadastrada"}
                 </h3>
                 <p className="text-muted-foreground mb-6 max-w-md">
                   {searchTerm
@@ -190,22 +224,26 @@ export default function DashboardProfessorPage() {
                     : "Comece criando sua primeira turma para organizar seus alunos e materiais."}
                 </p>
                 {!searchTerm && (
-                  <Button>
+                  <Button onClick={() => setIsDialogOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
                     Criar Primeira Turma
                   </Button>
                 )}
               </CardContent>
             </Card>
-          ) : ( 
+          ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredClassrooms.map((classroom) => (
-                <CardClassroom key={classroom.id} classroom={classroom} onClick={() => handleClassroomClick(classroom.id)} />
+                <CardClassroom
+                  key={classroom.id}
+                  classroom={classroom}
+                  onClick={() => handleClassroomClick(classroom.id)}
+                />
               ))}
             </div>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }
