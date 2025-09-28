@@ -1,25 +1,52 @@
-import type { Classroom } from "@/types/Classroom/Classroom"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Users, Calendar, BookOpen } from "lucide-react"
+"use client";
+
+import type { Classroom } from "@/types/Classroom/Classroom";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Users, Calendar, BookOpen, Copy, Check } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 interface CardClassroomProps {
-  classroom: Classroom
-  onClick?: () => void
+  classroom: Classroom;
+  onClick?: () => void;
 }
 
 export default function CardClassroom({ classroom, onClick }: CardClassroomProps) {
-  const studentCount = classroom.users.filter((user) => user.profile === 3).length
-  const teachers = classroom.users.filter((user) => user.profile === 2)
-  const createdDate = new Date(classroom.createdAt).toLocaleDateString("pt-BR")
+  const studentCount = classroom.users.filter((user) => user.profile === 3).length;
+  const teachers = classroom.users.filter((user) => user.profile === 2);
+  const createdDate = new Date(classroom.createdAt).toLocaleDateString("pt-BR");
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopy = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation(); // Previne que o clique no botão acione o onClick do Card
+    if (!classroom.inviteCode) return;
+
+    try {
+      await navigator.clipboard.writeText(classroom.inviteCode);
+      toast.success("Código copiado!");
+      setIsCopied(true);
+      setTimeout(() => {
+        setIsCopied(false);
+      }, 2000);
+    } catch (err) {
+      toast.error("Falha ao copiar o código.");
+      console.error('Failed to copy: ', err);
+    }
+  };
 
   return (
-    <Card className="hover:border-primary/50 transition-all duration-200 cursor-pointer bg-white border-border/40" onClick={onClick}>
+    <Card
+      className="hover:border-primary/50 transition-all duration-200 cursor-pointer bg-white border-border/40"
+      onClick={onClick}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-lg font-semibold text-foreground mb-1 line-clamp-1">{classroom.name}</CardTitle>
+            <CardTitle className="text-lg font-semibold text-foreground mb-1 line-clamp-1">
+              {classroom.name}
+            </CardTitle>
             <CardDescription className="text-sm text-muted-foreground line-clamp-2">
               {classroom.description}
             </CardDescription>
@@ -82,7 +109,26 @@ export default function CardClassroom({ classroom, onClick }: CardClassroomProps
             </div>
           </div>
         )}
+
+        <Badge variant="outline">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">
+              Código: {classroom.inviteCode}
+            </span>
+            <button
+              onClick={handleCopy}
+              title="Copiar código"
+              className="p-1 rounded-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              {isCopied ? (
+                <Check className="h-4 w-4 text-green-500 transition-all" />
+              ) : (
+                <Copy className="h-4 w-4 text-muted-foreground transition-all" />
+              )}
+            </button>
+          </div>
+        </Badge>
       </CardContent>
     </Card>
-  )
+  );
 }

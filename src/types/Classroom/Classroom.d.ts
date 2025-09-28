@@ -10,4 +10,5 @@ export interface Classroom {
     users: User[];
     banner: Archive | null;
     avatar: Archive | null;
+    inviteCode: string;
 }
