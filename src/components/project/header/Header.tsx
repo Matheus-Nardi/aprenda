@@ -15,6 +15,7 @@ import { BookOpen, User, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
 
+
 export function Header() {
   const { user, loading, logout } = useAuth();
 
@@ -103,7 +104,7 @@ export function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={handleLogout}
+                  onClick={logout}
                   className="cursor-pointer text-destructive focus:text-destructive"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
