@@ -1,21 +1,27 @@
-import type { Classroom } from "@/types/Classroom/Classroom"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Users, Calendar, BookOpen, Settings, UserPlus } from "lucide-react"
+import type { Classroom } from "@/types/Classroom/Classroom";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Users, Calendar, BookOpen, Settings, UserPlus } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface HeaderClassroomProps {
-  classroom: Classroom
+  classroom: Classroom;
 }
 
 export default function HeaderClassroom({ classroom }: HeaderClassroomProps) {
-  const studentCount = classroom.users.filter((user) => user.profile === 3).length
-  const teachers = classroom.users.filter((user) => user.profile === 2)
-  const createdDate = new Date(classroom.createdAt).toLocaleDateString("pt-BR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
+  const studentCount = classroom.users.filter(
+    (user) => user.profile === 3
+  ).length;
+  const teachers = classroom.users.filter((user) => user.profile === 2);
+  const createdDate = new Date(classroom.createdAt).toLocaleDateString(
+    "pt-BR",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  );
 
   const getClassroomInitials = (name: string) => {
     return name
@@ -23,22 +29,39 @@ export default function HeaderClassroom({ classroom }: HeaderClassroomProps) {
       .map((n) => n[0])
       .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
+
+  const user = useAuth();
 
   return (
     <header className="w-full bg-background border-b border-border/40">
-         {/* Right side - Actions */}
+      {/* Right side - Actions */}
+      {user?.user?.profile === 2 && (
+        <>
           <div className="flex-end items-center gap-2 lg:ml-auto">
-            <Button variant="outline" size="sm" className="bg-white border-border/40">
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-white border-border/40"
+            >
               <UserPlus className="h-4 w-4 mr-2" />
               Adicionar Aluno
             </Button>
-            <Button variant="outline" size="sm" className="bg-white border-border/40">
+          </div>
+          <div className="flex-end items-center gap-2 lg:ml-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-white border-border/40"
+            >
               <Settings className="h-4 w-4 mr-2" />
               Configurações
             </Button>
           </div>
+        </>
+      )}
+
       {/* Full-width banner */}
       <div className="w-full h-32 bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('/classroom-pattern.svg')] opacity-5"></div>
@@ -68,7 +91,9 @@ export default function HeaderClassroom({ classroom }: HeaderClassroomProps) {
 
             {/* Basic classroom info */}
             <div className="space-y-1 pb-2">
-              <h1 className="text-2xl lg:text-3xl font-bold text-foreground">{classroom.name}</h1>
+              <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+                {classroom.name}
+              </h1>
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Users className="h-4 w-4" />
@@ -83,21 +108,22 @@ export default function HeaderClassroom({ classroom }: HeaderClassroomProps) {
               </div>
             </div>
           </div>
-
-         
         </div>
 
         {/* Detailed information section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-6">
           {/* Description */}
           <div className="lg:col-span-2 space-y-3">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Descrição</h3>
+            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              Descrição
+            </h3>
             <p className="text-foreground leading-relaxed">
-              {classroom.description || "Nenhuma descrição disponível para esta turma."}
+              {classroom.description ||
+                "Nenhuma descrição disponível para esta turma."}
             </p>
           </div>
         </div>
       </div>
     </header>
-  )
+  );
 }

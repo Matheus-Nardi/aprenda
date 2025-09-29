@@ -5,6 +5,7 @@ export interface Archive {
     contentType: string;
     sizeInBytes: number;
     uploadedAt: string;
+    downloadUrl: string;
 }
 
 

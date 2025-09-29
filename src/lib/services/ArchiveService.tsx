@@ -31,4 +31,9 @@ export const ArchiveService = {
     }
   },
 
+  async download(): Promise<void> {
+
+
+  }
+
 }
