@@ -42,6 +42,7 @@ export default function ClassroomPage({ params }: ClassroomPageProps) {
           ProfessorService.getClassroomHomeworks(classroomId),
         ]);
 
+        console.log("aluno" , homeworksData);
         if (!classroomData) {
           setError("Turma não encontrada");
           return;
@@ -171,14 +172,6 @@ export default function ClassroomPage({ params }: ClassroomPageProps) {
                     <h3 className="text-lg font-medium text-foreground mb-2">
                       Nenhuma publicação ainda
                     </h3>
-                    <p className="text-muted-foreground mb-6 max-w-md">
-                      Seja o primeiro a compartilhar algo com a turma. Publique
-                      avisos e materiais.
-                    </p>
-                    <Button onClick={() => setIsDialogOpen(true)}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Criar Primeira Publicação
-                    </Button>
                   </CardContent>
                 </Card>
               ) : (
@@ -201,6 +194,23 @@ export default function ClassroomPage({ params }: ClassroomPageProps) {
                   {homeworks.length === 1 ? "atividade" : "atividades"}
                 </Badge>
               </div>
+
+               {homeworks.length === 0 ? (
+                <Card className="border-border/40 bg-white">
+                  <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                    <MessageSquare className="h-12 w-12 text-muted-foreground/50 mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">
+                      Nenhuma atividade ainda
+                    </h3>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {homeworks.map((homework) => (
+                    <CardHomework key={homework.id} homework={homework} />
+                  ))}
+                </div>
+              )}
             </div>
           </TabsContent>
 

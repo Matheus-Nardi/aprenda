@@ -10,6 +10,7 @@ import {
   FileText,
 } from "lucide-react";
 import { ESubmissionStatus } from "@/types/Submission/ESubmissionStatus";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CardHomeworkProps {
   homework: Homework;
@@ -21,6 +22,9 @@ export default function CardHomework({ homework }: CardHomeworkProps) {
   const isOverdue = dueDate ? dueDate < now : false;
   const isToday = dueDate ? dueDate.toString() === now.toDateString() : false;
 
+  const user = useAuth().user;
+
+  const isTeacher = user?.profile === 2;
   const submittedCount = homework.submissions.filter(
     (s) =>
       s.status === ESubmissionStatus.SUBMITTED ||
@@ -139,37 +143,39 @@ export default function CardHomework({ homework }: CardHomeworkProps) {
           )}
         </div>
 
-        <div className="grid grid-cols-3 gap-3 pt-3 border-t border-border/40">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <Users className="h-3.5 w-3.5 text-muted-foreground" />
+        {isTeacher && (
+          <div className="grid grid-cols-3 gap-3 pt-3 border-t border-border/40">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <Users className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+              <div className="text-sm font-medium text-foreground">
+                {totalSubmissions}
+              </div>
+              <div className="text-xs text-muted-foreground">Alunos</div>
             </div>
-            <div className="text-sm font-medium text-foreground">
-              {totalSubmissions}
-            </div>
-            <div className="text-xs text-muted-foreground">Alunos</div>
-          </div>
 
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <CheckCircle className="h-3.5 w-3.5 text-secondary" />
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <CheckCircle className="h-3.5 w-3.5 text-secondary" />
+              </div>
+              <div className="text-sm font-medium text-foreground">
+                {submittedCount}
+              </div>
+              <div className="text-xs text-muted-foreground">Entregues</div>
             </div>
-            <div className="text-sm font-medium text-foreground">
-              {submittedCount}
-            </div>
-            <div className="text-xs text-muted-foreground">Entregues</div>
-          </div>
 
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <AlertCircle className="h-3.5 w-3.5 text-accent" />
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <AlertCircle className="h-3.5 w-3.5 text-accent" />
+              </div>
+              <div className="text-sm font-medium text-foreground">
+                {gradedCount}
+              </div>
+              <div className="text-xs text-muted-foreground">Avaliados</div>
             </div>
-            <div className="text-sm font-medium text-foreground">
-              {gradedCount}
-            </div>
-            <div className="text-xs text-muted-foreground">Avaliados</div>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
