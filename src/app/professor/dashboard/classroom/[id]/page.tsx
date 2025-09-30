@@ -16,6 +16,8 @@ import { Plus, MessageSquare, BookOpen, Users, Loader2 } from "lucide-react";
 import { ProfessorService } from "@/lib/services/ProfessorService";
 import { GenericFormDialog } from "@/components/project/dialog/GenericDialogForm";
 import CreatePostForm from "@/components/project/forms/CreatePost";
+import CreateHomeworkForm from "@/components/project/forms/CreateHomework";
+import { set } from "zod";
 
 interface ClassroomPageProps {
   params: Promise<{ id: string }>;
@@ -27,10 +29,10 @@ export default function ClassroomPage({ params }: ClassroomPageProps) {
   const [homeworks, setHomeworks] = useState<Homework[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
+  const [isHomeworkDialogOpen, setIsHomeworkDialogOpen] = useState(false);
 
- 
-    const loadData = async () => {
+  const loadData = async () => {
       try {
         setLoading(true);
         const { id } = await params;
@@ -150,9 +152,15 @@ export default function ClassroomPage({ params }: ClassroomPageProps) {
             </TabsList>
 
             <div className="flex items-center gap-2">
-              <Button size="sm" onClick={() => setIsDialogOpen(true)}>
+              <Button size="sm" onClick={() => setIsPostDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Nova Publicação</span>
+                <span className="sm:hidden">Novo</span>
+              </Button>
+
+               <Button size="sm" onClick={() => setIsHomeworkDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Nova Atividade</span>
                 <span className="sm:hidden">Novo</span>
               </Button>
             </div>
@@ -181,7 +189,7 @@ export default function ClassroomPage({ params }: ClassroomPageProps) {
                       Seja o primeiro a compartilhar algo com a turma. Publique
                       avisos e materiais.
                     </p>
-                    <Button onClick={() => setIsDialogOpen(true)}>
+                    <Button onClick={() => setIsPostDialogOpen(true)}>
                       <Plus className="h-4 w-4 mr-2" />
                       Criar Primeira Publicação
                     </Button>
@@ -198,16 +206,16 @@ export default function ClassroomPage({ params }: ClassroomPageProps) {
           </TabsContent>
 
           <GenericFormDialog
-            title="Criar Novo Usuário"
-            description="Preencha os dados abaixo para adicionar um novo usuário ao sistema."
-            open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
+            title="Criar Nova Publicação"
+            description="Preencha os dados abaixo para adicionar uma nova publicação ao sistema."
+            open={isPostDialogOpen}
+            onOpenChange={setIsPostDialogOpen}
           >
             <CreatePostForm
               onSuccess={() => {
                 console.log("Formulário enviado, fechando o dialog.");
                 loadData();
-                setIsDialogOpen(false);
+                setIsPostDialogOpen(false);
               }}
               classroomId={classroom.id}
             />
@@ -236,7 +244,7 @@ export default function ClassroomPage({ params }: ClassroomPageProps) {
                       Crie atividades e trabalhos para engajar os alunos e
                       acompanhar o progresso da turma.
                     </p>
-                    <Button>
+                    <Button onClick={() => setIsHomeworkDialogOpen(true)}>
                       <Plus className="h-4 w-4 mr-2" />
                       Criar Primeira Atividade
                     </Button>
@@ -251,6 +259,22 @@ export default function ClassroomPage({ params }: ClassroomPageProps) {
               )}
             </div>
           </TabsContent>
+
+             <GenericFormDialog
+            title="Criar Nova Atividade"
+            description="Preencha os dados abaixo para adicionar uma nova atividade ao sistema."
+            open={isHomeworkDialogOpen}
+            onOpenChange={setIsHomeworkDialogOpen}
+          >
+            <CreateHomeworkForm
+              onSuccess={() => {
+                console.log("Formulário enviado, fechando o dialog.");
+                loadData();
+                setIsHomeworkDialogOpen(false);
+              }}
+              classroomId={classroom.id}
+            />
+          </GenericFormDialog>
 
           <TabsContent value="students" className="space-y-6">
             <div className="space-y-4">

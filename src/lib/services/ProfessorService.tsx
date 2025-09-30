@@ -11,6 +11,11 @@ interface PostPayload{
     isFixed?: boolean;
     attachmentsIds?: number[];
 }
+
+interface HomeworkPayload extends PostPayload{
+    dueDate: Date | null | undefined;
+
+}
 export const ProfessorService = {
   async getClassrooms(): Promise<Classroom[]>{
     try {
@@ -81,6 +86,25 @@ export const ProfessorService = {
       return response.data;
     } catch (error) {
       console.error("Erro ao criar postagem na sala de aula do professor:", error);
+      throw error;
+    }
+  },
+
+  async createHomework(data: HomeworkPayload, classroomId: number): Promise<Post | null> {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/professor/classrooms/${classroomId}/homeworks`,
+        data,
+        {
+          headers: {
+            'Authorization': `Bearer ${Cookies.get('auth_token')}`,
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao criar atividade na sala de aula do professor:", error);
       throw error;
     }
   },
