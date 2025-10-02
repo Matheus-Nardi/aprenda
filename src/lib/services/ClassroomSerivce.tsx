@@ -1,4 +1,5 @@
 import { Classroom } from "@/types/Classroom/Classroom";
+import { Homework } from "@/types/Post/Homework";
 import axios from "axios";
 import Cookies from "js-cookie";
 
@@ -44,4 +45,23 @@ export const ClassroomService = {
       throw error;
     }
   },
+
+
+  async getHomeworkById(idHomework: number): Promise<Homework | null>{
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/classroom/homework/${idHomework}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${Cookies.get('auth_token')}`,
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar tarefas da sala de aula do professor:", error);
+      throw error;
+    }
+  }
 };

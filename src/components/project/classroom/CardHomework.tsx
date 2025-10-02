@@ -14,9 +14,10 @@ import { useAuth } from "@/hooks/useAuth";
 
 interface CardHomeworkProps {
   homework: Homework;
+  onClick?: () => void;
 }
 
-export default function CardHomework({ homework }: CardHomeworkProps) {
+export default function CardHomework({ homework, onClick }: CardHomeworkProps) {
   const dueDate = homework.dueDate ? new Date(homework.dueDate) : null;
   const now = new Date();
   const isOverdue = dueDate ? dueDate < now : false;
@@ -83,7 +84,7 @@ export default function CardHomework({ homework }: CardHomeworkProps) {
   };
 
   return (
-    <Card className="hover:border-primary/50 transition-all duration-200 bg-white border-border/40">
+    <Card className="hover:border-primary/50 transition-all duration-200 bg-white border-border/40" onClick={onClick}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 flex-1 min-w-0">

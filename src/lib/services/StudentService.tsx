@@ -2,6 +2,7 @@
 import { Classroom } from '@/types/Classroom/Classroom';
 import { Homework } from '@/types/Post/Homework';
 import { Post } from '@/types/Post/Post';
+import { Submission } from '@/types/Submission/Submission';
 import axios from 'axios'; 
 import Cookies from 'js-cookie';
 
@@ -82,6 +83,45 @@ export const StudentService = {
       throw error;
     }
   },
+
+   async getSubmissionByHomework(idHomework: number): Promise<Submission[] | null>{
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/student/homeworks/${idHomework}/submissions`,
+        {
+          headers: {
+            'Authorization': `Bearer ${Cookies.get('auth_token')}`,
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar tarefas da sala de aula do professor:", error);
+      throw error;
+    }
+  },
+
+  async sendSubmission(homeworkId: number, homeworkPayload: any): Promise<void> {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/student/homeworks/${homeworkId}/submissions`,
+        homeworkPayload,
+        {
+          headers: {
+            'Authorization': `Bearer ${Cookies.get('auth_token')}`,
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar tarefas da sala de aula do professor:", error);
+      throw error;
+    }
+  },
+
+
 
 
 };

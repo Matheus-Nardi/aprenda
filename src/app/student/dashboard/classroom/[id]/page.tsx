@@ -16,6 +16,7 @@ import { Plus, MessageSquare, BookOpen, Users, Loader2 } from "lucide-react";
 import { ProfessorService } from "@/lib/services/ProfessorService";
 import { GenericFormDialog } from "@/components/project/dialog/GenericDialogForm";
 import CreatePostForm from "@/components/project/forms/CreatePost";
+import { useRouter } from "next/navigation";
 
 interface ClassroomPageProps {
   params: Promise<{ id: string }>;
@@ -28,7 +29,7 @@ export default function ClassroomPage({ params }: ClassroomPageProps) {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+  const router = useRouter();
  
     const loadData = async () => {
       try {
@@ -207,7 +208,7 @@ export default function ClassroomPage({ params }: ClassroomPageProps) {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {homeworks.map((homework) => (
-                    <CardHomework key={homework.id} homework={homework} />
+                    <CardHomework key={homework.id} homework={homework} onClick={() => {router.push(`/student/dashboard/classroom/${classroom.id}/homework/${homework.id}`)}} />
                   ))}
                 </div>
               )}
