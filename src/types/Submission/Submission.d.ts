@@ -7,7 +7,7 @@ import { Homework } from "../Post/Homework";
 
 export interface Submission {
     id: number;
-    submittedAt: string;
+    submittedAt: Date;
     status: ESubmissionStatus;
     grade?: Grade;
     user: User;
