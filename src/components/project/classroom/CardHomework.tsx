@@ -143,40 +143,6 @@ export default function CardHomework({ homework, onClick }: CardHomeworkProps) {
             </div>
           )}
         </div>
-
-        {isTeacher && (
-          <div className="grid grid-cols-3 gap-3 pt-3 border-t border-border/40">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <Users className="h-3.5 w-3.5 text-muted-foreground" />
-              </div>
-              <div className="text-sm font-medium text-foreground">
-                {totalSubmissions}
-              </div>
-              <div className="text-xs text-muted-foreground">Alunos</div>
-            </div>
-
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <CheckCircle className="h-3.5 w-3.5 text-secondary" />
-              </div>
-              <div className="text-sm font-medium text-foreground">
-                {submittedCount}
-              </div>
-              <div className="text-xs text-muted-foreground">Entregues</div>
-            </div>
-
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <AlertCircle className="h-3.5 w-3.5 text-accent" />
-              </div>
-              <div className="text-sm font-medium text-foreground">
-                {gradedCount}
-              </div>
-              <div className="text-xs text-muted-foreground">Avaliados</div>
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

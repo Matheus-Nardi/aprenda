@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BookOpen, User, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
+import { EProfile } from "@/types/User/EProfile";
 
 
 export function Header() {
@@ -90,7 +91,7 @@ export function Header() {
                       {user.email}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground capitalize">
-                      {user.profile}
+                      {EProfile[user.profile]?.toLowerCase()}
                     </p>
                   </div>
                 </DropdownMenuLabel>
@@ -99,10 +100,7 @@ export function Header() {
                   onClick={handleProfile}
                   className="cursor-pointer"
                 >
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Perfil</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={logout}
                   className="cursor-pointer text-destructive focus:text-destructive"

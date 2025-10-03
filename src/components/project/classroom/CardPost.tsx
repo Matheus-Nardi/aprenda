@@ -4,6 +4,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Heart, Calendar, Paperclip, FileImage, FileText, FileAudio, FileArchive, File } from "lucide-react";
 import { EProfile } from "@/types/User/EProfile";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale/pt-BR";
 
 interface CardPostProps {
   post: Post;
@@ -98,10 +100,16 @@ export default function CardPost({ post }: CardPostProps) {
               </Badge>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+               <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Calendar className="h-3 w-3" />
               <span>
-                {createdDate} às {timeAgo}
+                {post.createdAt
+                  ? format(
+                      new Date(post.createdAt),
+                      "dd 'de' MMMM 'de' yyyy, HH:mm'h'",
+                      { locale: ptBR }
+                    )
+                  : "Data indisponível"}
               </span>
             </div>
           </div>

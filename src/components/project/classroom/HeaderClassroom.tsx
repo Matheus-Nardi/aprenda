@@ -36,31 +36,6 @@ export default function HeaderClassroom({ classroom }: HeaderClassroomProps) {
 
   return (
     <header className="w-full bg-background border-b border-border/40">
-      {/* Right side - Actions */}
-      {user?.user?.profile === 2 && (
-        <>
-          <div className="flex-end items-center gap-2 lg:ml-auto">
-            <Button
-              variant="outline"
-              size="sm"
-              className="bg-white border-border/40"
-            >
-              <UserPlus className="h-4 w-4 mr-2" />
-              Adicionar Aluno
-            </Button>
-          </div>
-          <div className="flex-end items-center gap-2 lg:ml-auto">
-            <Button
-              variant="outline"
-              size="sm"
-              className="bg-white border-border/40"
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Configurações
-            </Button>
-          </div>
-        </>
-      )}
 
       {/* Full-width banner */}
       <div className="w-full h-32 bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 relative overflow-hidden">

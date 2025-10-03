@@ -43,6 +43,8 @@ export default function DashboardProfessorPage() {
       ]);
 
       setClassrooms(classroomsData || []);
+      console.log("classrooms", classroomsData);
+      console.log(classroomsData[1].users)
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
     } finally {
@@ -180,10 +182,6 @@ export default function DashboardProfessorPage() {
               className="pl-10 bg-white border-border/40"
             />
           </div>
-          <Button variant="outline" className="w-fit bg-white border-border/40">
-            <Filter className="h-4 w-4 mr-2" />
-            Filtros
-          </Button>
         </div>
 
         <div className="space-y-6">

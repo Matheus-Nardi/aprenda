@@ -14,7 +14,6 @@ interface CardClassroomProps {
 }
 
 export default function CardClassroom({ classroom, onClick }: CardClassroomProps) {
-  const studentCount = classroom.users.filter((user) => user.profile === 3).length;
   const teachers = classroom.users.filter((user) => user.profile === 2);
   const createdDate = new Date(classroom.createdAt).toLocaleDateString("pt-BR");
   const [isCopied, setIsCopied] = useState(false);
@@ -41,7 +40,7 @@ export default function CardClassroom({ classroom, onClick }: CardClassroomProps
       className="hover:border-primary/50 transition-all duration-200 cursor-pointer bg-white border-border/40"
       onClick={onClick}
     >
-      <CardHeader className="pb-3">
+      <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <CardTitle className="text-lg font-semibold text-foreground mb-1 line-clamp-1">
@@ -58,14 +57,8 @@ export default function CardClassroom({ classroom, onClick }: CardClassroomProps
       <CardContent className="pt-0 space-y-4">
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-1.5 text-muted-foreground">
-            <Users className="h-4 w-4" />
-            <span>
-              {studentCount} {studentCount === 1 ? "aluno" : "alunos"}
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5 text-muted-foreground">
             <Calendar className="h-4 w-4" />
-            <span>{createdDate}</span>
+            <span>Criada em {createdDate}</span>
           </div>
         </div>
 

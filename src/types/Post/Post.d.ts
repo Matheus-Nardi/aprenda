@@ -6,7 +6,7 @@ export interface Post {
     id: number;
     title: string;
     content: string;
-    createdAt: string;
+    createdAt: Date;
     isFixed: boolean;
     user: User;
     classroom: Classroom;
