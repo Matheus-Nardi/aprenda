@@ -1,103 +1,149 @@
-import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ArrowRight, BookCheck, MessageSquare, Users } from "lucide-react";
+import Link from "next/link";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="flex min-h-screen flex-col bg-background">
+      {/* Header */}
+      <header className="container mx-auto flex h-16 items-center justify-between px-4">
+        <h1 className="text-2xl font-bold">
+          Aprenda<span className="text-primary">@</span>
+        </h1>
+        <Link href={'/login'}>
+        <Button variant="ghost">Acessar</Button>
+        </Link>
+      </header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+      <main className="flex-1">
+        {/* Seção Principal (Hero) */}
+        <section className="container mx-auto flex flex-col items-center justify-center px-4 py-20 text-center md:py-32">
+          <h2 className="text-4xl font-bold tracking-tight md:text-6xl">
+            Onde o conhecimento encontra a{" "}
+            <span className="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">
+              colaboração
+            </span>
+            .
+          </h2>
+          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
+            A plataforma Aprenda@ conecta professores e alunos em um ambiente
+            de aprendizado dinâmico, simplificando a gestão de atividades e a
+            comunicação.
+          </p>
+          <Button size="lg" className="mt-8">
+            <Link href={'/login'}>
+            Começar Agora
+            </Link>
+          </Button>
+        </section>
+
+        {/* Seção de Recursos */}
+        <section id="features" className="bg-muted/50 py-16 md:py-24">
+          <div className="container mx-auto px-4">
+            <div className="mx-auto mb-12 max-w-2xl text-center">
+              <h3 className="text-3xl font-bold">Recursos Principais</h3>
+              <p className="mt-2 text-muted-foreground">
+                Tudo que você precisa para uma experiência de ensino e
+                aprendizado completa.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+              <Card>
+                <CardHeader className="items-center">
+                  <div className="mb-4 rounded-full bg-primary/10 p-4">
+                    <Users className="h-8 w-8 text-primary" />
+                  </div>
+                  <CardTitle>Salas de Aula Interativas</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center text-muted-foreground">
+                  Crie e gerencie turmas, compartilhe materiais e promova
+                  discussões em um só lugar.
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="items-center">
+                  <div className="mb-4 rounded-full bg-primary/10 p-4">
+                    <BookCheck className="h-8 w-8 text-primary" />
+                  </div>
+                  <CardTitle>Gestão de Atividades</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center text-muted-foreground">
+                  Envie tarefas, defina prazos e acompanhe o progresso dos
+                  alunos de forma intuitiva.
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="items-center">
+                  <div className="mb-4 rounded-full bg-primary/10 p-4">
+                    <MessageSquare className="h-8 w-8 text-primary" />
+                  </div>
+                  <CardTitle>Feedback Construtivo</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center text-muted-foreground">
+                  Avalie os trabalhos e forneça feedbacks detalhados para
+                  impulsionar o aprendizado.
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* Seção de Depoimentos */}
+        <section id="testimonials" className="py-16 md:py-24">
+          <div className="container mx-auto px-4">
+            <div className="mx-auto mb-12 max-w-2xl text-center">
+              <h3 className="text-3xl font-bold">O que dizem nossos usuários</h3>
+              <p className="mt-2 text-muted-foreground">
+                A confiança de educadores e estudantes é o nosso maior incentivo.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+              <Card className="flex flex-col justify-between">
+                <CardContent className="pt-6">
+                  <p className="italic">
+                    "Finalmente uma plataforma para superar o Educ@. O toque de Google
+                    Classroom também foi essencial. Meus alunos podem acompanhar minhas aulas tranquilamente e receber feecback necessário"
+                  </p>
+                </CardContent>
+                <div className="flex items-center gap-4 p-6 pt-0">
+                  <Avatar>
+                    <AvatarImage src="/placeholder-user.jpg" />
+                    <AvatarFallback>AC</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold">Professor Itamar</p>
+                    <p className="text-sm text-muted-foreground">
+                       UNITINS
+                    </p>
+                  </div>
+                </div>
+              </Card>
+              <Card className="flex flex-col justify-between">
+                <CardContent className="pt-6">
+                  <p className="italic">
+                    "Impressionado com a qualidade desse novo software edcuacional. Nem diria que foi feito em uma semana.
+                    Agora posso ficar atento aos avisos e atividades dos meus professores"
+                  </p>
+                </CardContent>
+                <div className="flex items-center gap-4 p-6 pt-0">
+                  <Avatar>
+                    <AvatarImage src="/placeholder-user.jpg" />
+                    <AvatarFallback>LG</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold">Matheus</p>
+                    <p className="text-sm text-muted-foreground">
+                      Estudante de SI
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
