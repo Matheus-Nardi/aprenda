@@ -44,7 +44,6 @@ export default function DashboardProfessorPage() {
 
       setClassrooms(classroomsData || []);
       console.log("classrooms", classroomsData);
-      console.log(classroomsData[1].users)
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
     } finally {

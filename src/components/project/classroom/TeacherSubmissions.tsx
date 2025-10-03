@@ -19,20 +19,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Eye, FileText, Search, Filter, Download } from "lucide-react";
+// Imports adicionados para o Dialog
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Eye, FileText, Search } from "lucide-react";
 import { Homework } from "@/types/Post/Homework";
 import { Submission } from "@/types/Submission/Submission";
 import { ESubmissionStatus } from "@/types/Submission/ESubmissionStatus";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
+// Importe o componente que será exibido no modal
+import ActionsSubmission from "./ActionsSubmission";
 
 interface SubmissionProps {
   homework: Homework;
@@ -64,8 +66,12 @@ export default function TeacherSubmissionsPage({
   submissions,
   onSuccess,
 }: SubmissionProps) {
-  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // 1. Estados para controlar o modal e a submissão selecionada
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSubmission, setSelectedSubmission] =
+    useState<Submission | null>(null);
 
   const getInitials = (name: string) => {
     return name
@@ -76,60 +82,69 @@ export default function TeacherSubmissionsPage({
       .slice(0, 2);
   };
 
+  // 2. Função para abrir o modal com a submissão correta
+  const handleViewDetails = (submission: Submission) => {
+    setSelectedSubmission(submission);
+    setIsModalOpen(true);
+  };
+
+  const handleSuccessAndCloseModal = () => {
+    setIsModalOpen(false);
+    onSuccess?.();
+  };
+
   const stats = {
-    total: submissions?.length,
-    pending: submissions?.filter(
-      (s) =>
-        s.status === ESubmissionStatus.PENDING ||
-        s.status === ESubmissionStatus.SUBMITTED
-    ).length,
-    graded: submissions?.filter((s) => s.status === ESubmissionStatus.GRADED)
-      .length,
-    late: submissions?.filter((s) => s.status === ESubmissionStatus.OVERDUE)
-      .length,
+    total: submissions?.length ?? 0,
+    pending:
+      submissions?.filter((s) => s.status === ESubmissionStatus.SUBMITTED)
+        .length ?? 0,
+    graded:
+      submissions?.filter((s) => s.status === ESubmissionStatus.GRADED)
+        .length ?? 0,
+    late:
+      submissions?.filter((s) => s.status === ESubmissionStatus.OVERDUE)
+        .length ?? 0,
   };
 
   return (
     <div className="min-h-screen bg-background p-6 md:p-8">
       <div className="mx-auto max-w-7xl space-y-6">
         {/* Header */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Submissões de Atividades
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Gerencie e avalie as atividades enviadas pelos estudantes
-            </p>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            Submissões da Atividade: {homework.title}
+          </h1>
+          <p className="mt-1 text-muted-foreground">
+            Gerencie e avalie as atividades enviadas pelos estudantes.
+          </p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-4">
-          <Card className="border-border/50 bg-card/50">
-            <CardHeader className="pb-3">
-              <CardDescription>Total de Submissões</CardDescription>
+          <Card>
+            <CardHeader>
+              <CardDescription>Total</CardDescription>
               <CardTitle className="text-3xl">{stats.total}</CardTitle>
             </CardHeader>
           </Card>
-          <Card className="border-border/50 bg-card/50">
-            <CardHeader className="pb-3">
+          <Card>
+            <CardHeader>
               <CardDescription>Aguardando Avaliação</CardDescription>
               <CardTitle className="text-3xl text-blue-500">
                 {stats.pending}
               </CardTitle>
             </CardHeader>
           </Card>
-          <Card className="border-border/50 bg-card/50">
-            <CardHeader className="pb-3">
+          <Card>
+            <CardHeader>
               <CardDescription>Avaliadas</CardDescription>
               <CardTitle className="text-3xl text-green-500">
                 {stats.graded}
               </CardTitle>
             </CardHeader>
           </Card>
-          <Card className="border-border/50 bg-card/50">
-            <CardHeader className="pb-3">
+          <Card>
+            <CardHeader>
               <CardDescription>Atrasadas</CardDescription>
               <CardTitle className="text-3xl text-red-500">
                 {stats.late}
@@ -138,19 +153,17 @@ export default function TeacherSubmissionsPage({
           </Card>
         </div>
 
-        {/* Filters */}
+        {/* Filters and Table */}
         <Card className="border-border/50">
           <CardHeader>
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="relative flex-1 md:max-w-sm">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar por estudante ou atividade..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
+            <div className="relative flex-1 md:max-w-sm">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por estudante..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
             </div>
           </CardHeader>
           <CardContent>
@@ -161,7 +174,7 @@ export default function TeacherSubmissionsPage({
                     <TableHead className="w-[250px]">Estudante</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Data de Envio</TableHead>
-                    <TableHead>Nota</TableHead>
+                    <TableHead>Avaliação</TableHead>
                     <TableHead>Arquivos</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
@@ -169,10 +182,7 @@ export default function TeacherSubmissionsPage({
                 <TableBody>
                   {submissions?.length === 0 ? (
                     <TableRow>
-                      <TableCell
-                        colSpan={7}
-                        className="h-24 text-center text-muted-foreground"
-                      >
+                      <TableCell colSpan={5} className="h-24 text-center">
                         Nenhuma submissão encontrada
                       </TableCell>
                     </TableRow>
@@ -186,27 +196,23 @@ export default function TeacherSubmissionsPage({
                           <div className="flex items-center gap-3">
                             <Avatar className="h-9 w-9">
                               <AvatarImage
-                                src={
-                                  submission.user.avatar?.downloadUrl ||
-                                  "/placeholder.svg"
-                                }
+                                src={submission.user.avatar?.downloadUrl}
                                 alt={submission.user.name}
                               />
-                              <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                              <AvatarFallback>
                                 {getInitials(submission.user.name)}
                               </AvatarFallback>
                             </Avatar>
-                            <div className="flex flex-col">
+                            <div>
                               <span className="font-medium text-sm">
                                 {submission.user.name}
                               </span>
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-xs text-muted-foreground block">
                                 {submission.user.email}
                               </span>
                             </div>
                           </div>
                         </TableCell>
-
                         <TableCell>
                           <Badge
                             variant="outline"
@@ -231,23 +237,20 @@ export default function TeacherSubmissionsPage({
                           {submission.submittedAt
                             ? format(
                                 new Date(submission.submittedAt),
-                                "dd 'de' MMMM 'de' yyyy, HH:mm'h'",
+                                "dd/MM/yy, HH:mm'h'",
                                 { locale: ptBR }
                               )
                             : "Não enviado"}
                         </TableCell>
                         <TableCell>
                           {submission.grade ? (
-                            <div className="flex items-center gap-1">
-                              <span className="font-semibold text-sm">
-                                {submission.grade.value}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                / {submission.grade.maxValue}
+                            <div className="flex flex-col">
+                              <span className="font-medium text-sm text-green-600">
+                                {submission.grade.value.toFixed(1)} / 10
                               </span>
                             </div>
                           ) : (
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-sm text-muted-foreground">
                               Não avaliado
                             </span>
                           )}
@@ -263,6 +266,7 @@ export default function TeacherSubmissionsPage({
                             variant="ghost"
                             size="sm"
                             className="h-8 w-8 p-0"
+                            onClick={() => handleViewDetails(submission)}
                           >
                             <Eye className="h-4 w-4" />
                             <span className="sr-only">Ver detalhes</span>
@@ -277,6 +281,27 @@ export default function TeacherSubmissionsPage({
           </CardContent>
         </Card>
       </div>
+
+      {/* 3. Componente Dialog para exibir o modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>
+
+              {selectedSubmission?.grade
+                ? "Detalhes do Envio de: "
+                : "Avaliar Envio de: "}
+              {selectedSubmission?.user.name}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedSubmission && (
+            <ActionsSubmission
+              submission={selectedSubmission}
+              onSuccess={handleSuccessAndCloseModal}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

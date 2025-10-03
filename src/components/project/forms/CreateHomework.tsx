@@ -219,6 +219,7 @@ export default function CreateHomeworkForm({ classroomId, onSuccess }: HomeworkF
               multiple 
               onChange={handleFileChange}
               className="cursor-pointer"
+              accept="application/pdf, image/*, .zip, application/zip"
             />
           </FormControl>
           <FormMessage />

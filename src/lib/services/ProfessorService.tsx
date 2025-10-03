@@ -2,6 +2,7 @@
 import { Classroom } from '@/types/Classroom/Classroom';
 import { Homework } from '@/types/Post/Homework';
 import { Post } from '@/types/Post/Post';
+import { Grade } from '@/types/Submission/Grade';
 import { Submission } from '@/types/Submission/Submission';
 import axios from 'axios'; 
 import Cookies from 'js-cookie';
@@ -17,6 +18,12 @@ interface HomeworkPayload extends PostPayload{
     dueDate: Date | null | undefined;
 
 }
+interface GradePayload{
+    value: number;
+    feedback: string;
+}
+
+
 export const ProfessorService = {
   async getClassrooms(): Promise<Classroom[]>{
     try {
@@ -115,6 +122,26 @@ export const ProfessorService = {
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/professor/homeworks/${idHomework}/submissions`,
+        {
+          headers: {
+            'Authorization': `Bearer ${Cookies.get('auth_token')}`,
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar tarefas da sala de aula do professor:", error);
+      throw error;
+    }
+  },
+
+
+   async gradeSubmission(idSubmission: number, data: GradePayload): Promise<Grade | null>{
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/professor/submissions/${idSubmission}/grade`,
+        data,
         {
           headers: {
             'Authorization': `Bearer ${Cookies.get('auth_token')}`,

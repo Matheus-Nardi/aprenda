@@ -93,7 +93,7 @@ export function RegisterForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium text-foreground">
-                E-mail
+                Nome
               </FormLabel>
               <FormControl>
                 <Input

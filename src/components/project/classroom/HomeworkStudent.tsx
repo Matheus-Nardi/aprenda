@@ -15,12 +15,15 @@ import { ESubmissionStatus } from "@/types/Submission/ESubmissionStatus"
 import { toast } from "sonner"
 import { ArchiveService } from "@/lib/services/ArchiveService"
 import { StudentService } from "@/lib/services/StudentService"
+import { format } from "date-fns"
+import { ptBR } from "date-fns/locale/pt-BR"
+import { Archive } from "@/types/Archive/Archive"
 
 interface HomeworkStudentProps {
   homework: Homework
   user: User | null
   submissions?: Submission[] | null
-  onSuccess?: () => void    
+  onSuccess?: () => void
 }
 
 export default function HomeworkStudent({ homework, user, submissions, onSuccess }: HomeworkStudentProps) {
@@ -29,11 +32,10 @@ export default function HomeworkStudent({ homework, user, submissions, onSuccess
   const [isSubmitting, setIsSubmitting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-
   const dueDate = homework.dueDate ? new Date(homework.dueDate) : new Date()
   const now = new Date()
   const hasSubmissions = submissions && submissions.length > 0
-  const isOverdue = dueDate < now && !hasSubmissions
+  const isPastDeadline = dueDate < now
   const isToday = dueDate.toDateString() === now.toDateString()
 
   const formatDate = (date: Date) => {
@@ -45,6 +47,25 @@ export default function HomeworkStudent({ homework, user, submissions, onSuccess
       minute: "2-digit",
     })
   }
+
+  async function handleDownload(archive: Archive) {
+    try{
+      const link = document.createElement("a")
+      link.href = archive.downloadUrl
+      link.target = "_blank"
+      link.rel = "noopener noreferrer"
+      link.setAttribute("download", archive.originalName)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+
+        toast.info(`Iniciando o download de "${archive.originalName}"...`)
+    } catch (error) {
+      console.error("Erro ao tentar baixar o arquivo:", error)
+      toast.error("Não foi possível iniciar o download.")
+    }
+  }
+
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + " B"
@@ -81,41 +102,39 @@ export default function HomeworkStudent({ homework, user, submissions, onSuccess
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
- 
-   async function handleSubmit() {
-     if (selectedFiles.length === 0) return
-     
-      try {
-        let attachmentIds: number[] = [];
-        if (selectedFiles.length > 0) {
-          toast.info("Enviando anexos...");
+  async function handleSubmit() {
+    if (selectedFiles.length === 0) return
+    setIsSubmitting(true)
 
-          const uploadPromises = selectedFiles.map(file =>
-              ArchiveService.uploadFile(file)
-          );
-          const uploadResults = await Promise.all(uploadPromises);
-          attachmentIds = uploadResults.map(result => result.id);
-        }
-  
-        const homeworkPayload = {
-          AttachmentIds: attachmentIds
-        };
+    try {
+      let attachmentIds: number[] = []
+      if (selectedFiles.length > 0) {
+        toast.info("Enviando anexos...")
 
-        await StudentService.sendSubmission(homework.id, homeworkPayload);
-
-        toast.success(`Atividade enviada com sucesso!`);
-        onSuccess?.();
-        setSelectedFiles([]);
-
-      } catch (error) {
-        console.error("Erro ao enviar a atividade:", error);
-        toast.error("Erro ao enviar a atividade. Tente novamente.");
+        const uploadPromises = selectedFiles.map((file) => ArchiveService.uploadFile(file))
+        const uploadResults = await Promise.all(uploadPromises)
+        attachmentIds = uploadResults.map((result) => result.id)
       }
+
+      const homeworkPayload = {
+        AttachmentIds: attachmentIds,
+      }
+
+      await StudentService.sendSubmission(homework.id, homeworkPayload)
+
+      toast.success(`Atividade enviada com sucesso!`)
+      onSuccess?.()
+      setSelectedFiles([])
+    } catch (error) {
+      console.error("Erro ao enviar a atividade:", error)
+      toast.error("Erro ao enviar a atividade. Tente novamente.")
+    } finally {
+      setIsSubmitting(false)
     }
+  }
 
   const getStatusBadge = () => {
     if (hasSubmissions) {
-      // Assuming the first submission is the latest one
       switch (submissions[0].status) {
         case ESubmissionStatus.GRADED:
           return (
@@ -126,7 +145,7 @@ export default function HomeworkStudent({ homework, user, submissions, onSuccess
           )
         case ESubmissionStatus.SUBMITTED:
           return (
-            <Badge className="bg-secondary/10 text-secondary border-secondary/20">
+            <Badge className="border-primary/20 text-primary bg-primary/5">
               <CheckCircle className="h-3 w-3 mr-1" />
               Entregue
             </Badge>
@@ -136,7 +155,7 @@ export default function HomeworkStudent({ homework, user, submissions, onSuccess
       }
     }
 
-    if (isOverdue) {
+    if (isPastDeadline) {
       return (
         <Badge variant="destructive">
           <AlertCircle className="h-3 w-3 mr-1" />
@@ -163,7 +182,6 @@ export default function HomeworkStudent({ homework, user, submissions, onSuccess
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <Card className="border-border/40 bg-white">
         <CardHeader>
           <div className="flex items-start justify-between gap-4">
@@ -176,16 +194,9 @@ export default function HomeworkStudent({ homework, user, submissions, onSuccess
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Avatar className="h-6 w-6">
-                    <AvatarImage
-                      src={homework.user.avatar?.downloadUrl || "/placeholder.svg"}
-                      alt={homework.user.name}
-                    />
+                    <AvatarImage src={homework.user.avatar?.downloadUrl || "/placeholder.svg"} alt={homework.user.name} />
                     <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                      {homework.user.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .slice(0, 2)}
+                      {homework.user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
                   <span>{homework.user.name}</span>
@@ -193,7 +204,9 @@ export default function HomeworkStudent({ homework, user, submissions, onSuccess
 
                 <div className="flex items-center gap-1.5">
                   <Calendar className="h-4 w-4" />
-                  <span>Publicado em {formatDate(new Date(homework.createdAt))}</span>
+                  <span>
+                    {homework.createdAt ? format(new Date(homework.createdAt), "dd 'de' MMMM 'de' yyyy, HH:mm'h'", { locale: ptBR }) : "Data indisponível"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -205,27 +218,25 @@ export default function HomeworkStudent({ homework, user, submissions, onSuccess
             <p className="text-foreground leading-relaxed whitespace-pre-wrap">{homework.content}</p>
           </div>
 
-          {/* Due Date */}
           <div
             className={`flex items-center gap-2 p-3 rounded-lg border ${
-              isOverdue
+              isPastDeadline && !hasSubmissions
                 ? "bg-destructive/5 border-destructive/20"
                 : isToday
-                  ? "bg-amber-50 border-amber-200"
-                  : "bg-primary/5 border-primary/20"
+                ? "bg-amber-50 border-amber-200"
+                : "bg-primary/5 border-primary/20"
             }`}
           >
             <Clock
-              className={`h-4 w-4 ${isOverdue ? "text-destructive" : isToday ? "text-amber-700" : "text-primary"}`}
+              className={`h-4 w-4 ${isPastDeadline && !hasSubmissions ? "text-destructive" : isToday ? "text-amber-700" : "text-primary"}`}
             />
             <span
-              className={`text-sm font-medium ${isOverdue ? "text-destructive" : isToday ? "text-amber-700" : "text-primary"}`}
+              className={`text-sm font-medium ${isPastDeadline && !hasSubmissions ? "text-destructive" : isToday ? "text-amber-700" : "text-primary"}`}
             >
               Prazo de entrega: {formatDate(dueDate)}
             </span>
           </div>
 
-          {/* Teacher's Attachments */}
           {homework.archives && homework.archives.length > 0 && (
             <div className="space-y-2">
               <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
@@ -234,10 +245,7 @@ export default function HomeworkStudent({ homework, user, submissions, onSuccess
               </h4>
               <div className="space-y-2">
                 {homework.archives.map((archive, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-muted/30"
-                  >
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-muted/30">
                     <div className="flex items-center gap-3">
                       <FileText className="h-5 w-5 text-primary" />
                       <span className="text-sm text-foreground">{archive.originalName}</span>
@@ -253,8 +261,107 @@ export default function HomeworkStudent({ homework, user, submissions, onSuccess
         </CardContent>
       </Card>
 
-      {/* Submission Section */}
-      {hasSubmissions ? (
+       <Card className="border-border/40 bg-white">
+        <CardHeader>
+          <CardTitle className="text-lg">{hasSubmissions ? "Adicionar Novo Envio" : "Enviar Trabalho"}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            className={`
+                relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+                transition-all duration-200
+                ${isDragging ? "border-primary bg-primary/5 scale-[1.02]" : "border-border/40 bg-muted/20"}
+                ${!isPastDeadline && "hover:border-primary/50 hover:bg-primary/5"}
+                ${isPastDeadline && "cursor-not-allowed bg-muted/50"}
+              `}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+
+            <div className="flex flex-col items-center gap-3">
+              <div className={`p-4 rounded-full ${isDragging ? "bg-primary/10" : "bg-primary/5"} transition-colors`}>
+                <Upload className={`h-8 w-8 ${isDragging ? "text-primary" : "text-primary/70"}`} />
+              </div>
+
+              <div>
+                <p className="text-base font-medium text-foreground mb-1">
+                  {isDragging ? "Solte os arquivos aqui" : "Clique ou arraste arquivos"}
+                </p>
+                <p className="text-sm text-muted-foreground">Suporta PDF, DOC, DOCX, imagens e outros formatos</p>
+              </div>
+            </div>
+          </div>
+
+          {selectedFiles.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium text-foreground">Arquivos Selecionados ({selectedFiles.length})</h4>
+              <div className="space-y-2">
+                {selectedFiles.map((file, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-white">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <FileText className="h-5 w-5 text-primary flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-foreground truncate">{file.name}</p>
+                        <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        removeFile(index)
+                      }}
+                      className="flex-shrink-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between pt-4 border-t border-border/40">
+            <p className="text-sm text-muted-foreground">
+              {selectedFiles.length > 0
+                ? `${selectedFiles.length} arquivo${selectedFiles.length > 1 ? "s" : ""} pronto${selectedFiles.length > 1 ? "s" : ""} para envio`
+                : "Nenhum arquivo selecionado"}
+            </p>
+            <Button onClick={handleSubmit} disabled={selectedFiles.length === 0 || isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Clock className="h-4 w-4 mr-2 animate-spin" />
+                  Enviando...
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4 mr-2" />
+                  {hasSubmissions ? "Enviar Nova Versão" : "Enviar Trabalho"}
+                </>
+              )}
+            </Button>
+          </div>
+
+          {isPastDeadline && (
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
+              <AlertCircle className="h-4 w-4 text-destructive" />
+              <p className="text-sm text-destructive font-medium">O prazo de entrega para esta atividade expirou.</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {hasSubmissions && (
         <Card className="border-border/40 bg-white">
           <CardHeader>
             <CardTitle className="text-lg">Seus Envios</CardTitle>
@@ -267,7 +374,7 @@ export default function HomeworkStudent({ homework, user, submissions, onSuccess
                     {index === 0 ? "Último Envio" : `Envio Anterior #${submissions.length - index}`}
                   </h3>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <CheckCircle className="h-4 w-4 text-secondary" />
+                    <CheckCircle className="h-4 w-4 text-green-500" />
                     <span>Entregue em {formatDate(new Date(submission.submittedAt))}</span>
                   </div>
                 </div>
@@ -277,10 +384,7 @@ export default function HomeworkStudent({ homework, user, submissions, onSuccess
                     <h4 className="text-sm font-medium text-foreground">Arquivos Enviados</h4>
                     <div className="space-y-2">
                       {submission.archives.map((archive) => (
-                        <div
-                          key={archive.id}
-                          className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-white"
-                        >
+                        <div key={archive.id} className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-white">
                           <div className="flex items-center gap-3">
                             <FileText className="h-5 w-5 text-primary" />
                             <div>
@@ -288,7 +392,7 @@ export default function HomeworkStudent({ homework, user, submissions, onSuccess
                               <p className="text-xs text-muted-foreground">{formatFileSize(archive.sizeInBytes)}</p>
                             </div>
                           </div>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => handleDownload(archive)}>
                             <Download className="h-4 w-4" />
                           </Button>
                         </div>
@@ -301,11 +405,9 @@ export default function HomeworkStudent({ homework, user, submissions, onSuccess
                   <div className="p-4 rounded-lg border border-accent/20 bg-accent/5">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="text-sm font-medium text-foreground">Avaliação</h4>
-                      <Badge className="bg-accent text-white">Nota: {submission.grade.value}</Badge>
+                      <Badge className="bg-accent text-accent-foreground">Nota: {submission.grade.value}</Badge>
                     </div>
-                    {submission.grade.feedback && (
-                      <p className="text-sm text-muted-foreground">{submission.grade.feedback}</p>
-                    )}
+                    {submission.grade.feedback && <p className="text-sm text-muted-foreground">Feedback do professor: {submission.grade.feedback}</p>}
                     <p className="text-xs text-muted-foreground mt-2">
                       Avaliado em {formatDate(new Date(submission.grade.gradedAt))}
                     </p>
@@ -315,116 +417,9 @@ export default function HomeworkStudent({ homework, user, submissions, onSuccess
             ))}
           </CardContent>
         </Card>
-      ) : (
-        <Card className="border-border/40 bg-white">
-          <CardHeader>
-            <CardTitle className="text-lg">Enviar Trabalho</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Drag and Drop Area */}
-            <div
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              className={`
-                relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
-                transition-all duration-200
-                ${
-                  isDragging
-                    ? "border-primary bg-primary/5 scale-[1.02]"
-                    : "border-border/40 bg-muted/20 hover:border-primary/50 hover:bg-primary/5"
-                }
-              `}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                onChange={handleFileSelect}
-                className="hidden"
-                disabled={isOverdue}
-              />
-
-              <div className="flex flex-col items-center gap-3">
-                <div className={`p-4 rounded-full ${isDragging ? "bg-primary/10" : "bg-primary/5"} transition-colors`}>
-                  <Upload className={`h-8 w-8 ${isDragging ? "text-primary" : "text-primary/70"}`} />
-                </div>
-
-                <div>
-                  <p className="text-base font-medium text-foreground mb-1">
-                    {isDragging ? "Solte os arquivos aqui" : "Clique ou arraste arquivos"}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Suporta PDF, DOC, DOCX, imagens e outros formatos</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Selected Files */}
-            {selectedFiles.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium text-foreground">Arquivos Selecionados ({selectedFiles.length})</h4>
-                <div className="space-y-2">
-                  {selectedFiles.map((file, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-white"
-                    >
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <FileText className="h-5 w-5 text-primary flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-foreground truncate">{file.name}</p>
-                          <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          removeFile(index)
-                        }}
-                        className="flex-shrink-0"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <div className="flex items-center justify-between pt-4 border-t border-border/40">
-              <p className="text-sm text-muted-foreground">
-                {selectedFiles.length > 0
-                  ? `${selectedFiles.length} arquivo${selectedFiles.length > 1 ? "s" : ""} pronto${selectedFiles.length > 1 ? "s" : ""} para envio`
-                  : "Nenhum arquivo selecionado"}
-              </p>
-              <Button onClick={handleSubmit} disabled={selectedFiles.length === 0 || isSubmitting || isOverdue}>
-                {isSubmitting ? (
-                  <>
-                    <Clock className="h-4 w-4 mr-2 animate-spin" />
-                    Enviando...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Enviar Trabalho
-                  </>
-                )}
-              </Button>
-            </div>
-
-            {isOverdue && (
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
-                <AlertCircle className="h-4 w-4 text-destructive" />
-                <p className="text-sm text-destructive">O prazo de entrega expirou</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       )}
+
+     
     </div>
   )
 }
